@@ -1,156 +1,420 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Localização Geográfica</title>
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#102a43">
+    <title>Registro de Localização</title>
 
     <style>
         :root {
-            --bg-main: #0f172a;       /* Slate 900 */
-            --bg-card: #1e293b;       /* Slate 800 */
-            --bg-input: #0f172a;      /* Slate 900 */
-            --border-color: #334155;  /* Slate 700 */
-            --text-primary: #f8fafc;  /* Slate 50 */
-            --text-secondary: #94a3b8;/* Slate 400 */
-            --accent: #3b82f6;        /* Blue 500 */
-            --accent-hover: #2563eb;  /* Blue 600 */
-            --success: #10b981;       /* Emerald 500 */
-            --error: #ef4444;         /* Red 500 */
+            --bg: #f3f6fb;
+            --card: #ffffff;
+            --ink: #172b4d;
+            --muted: #62748a;
+            --accent: #1769e0;
+            --line: #dbe3ef;
+            --success: #087443;
+            --error: #b42318;
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
+            margin: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            line-height: 1.5;
+            background: linear-gradient(
+                145deg,
+                #eaf1fb,
+                var(--bg) 55%,
+                #eef7f3
+            );
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            padding: 24px;
         }
 
-        header {
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        main {
+            width: min(100%, 560px);
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            padding: clamp(22px, 5vw, 38px);
+            box-shadow: 0 18px 55px #19365b18;
         }
 
-        header h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        header h1 span {
+        .eyebrow {
+            font-size: 12px;
+            font-weight: 750;
+            letter-spacing: .12em;
+            text-transform: uppercase;
             color: var(--accent);
         }
 
-        .container {
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 1.5rem;
-            padding: 1.5rem 2rem;
-            flex: 1;
-            max-width: 1600px;
-            width: 100%;
-            margin: 0 auto;
+        h1 {
+            font-size: 30px;
+            line-height: 1.15;
+            margin: 9px 0 10px;
         }
 
-        /* Painel Lateral (Formulário) */
-        .sidebar {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            height: fit-content;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        }
-
-        .sidebar-header h2 {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .sidebar-header p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        .search-box {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
+        .intro {
+            color: var(--muted);
+            margin-bottom: 25px;
+            line-height: 1.5;
         }
 
         label {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-secondary);
+            display: block;
+            font-weight: 650;
+            margin: 17px 0 7px;
         }
 
         input {
-            background-color: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 0.65rem 0.85rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-family: inherit;
-            transition: border-color 0.2s, box-shadow 0.2s;
             width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            padding: 13px 14px;
+            font-size: 16px;
+            color: var(--ink);
+            background: #fbfcfe;
         }
 
         input:focus {
-            outline: none;
+            outline: 3px solid #1769e022;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
 
         input[readonly] {
-            background-color: rgba(15, 23, 42, 0.6);
-            color: var(--text-secondary);
-            cursor: not-allowed;
+            background: #f4f7fb;
+            color: #43556d;
         }
 
-        .coords-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 23px;
         }
 
         button {
-            background-color: var(--accent);
+            border: 0;
+            border-radius: 11px;
+            padding: 13px 17px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button.primary {
+            background: var(--accent);
             color: white;
-            border: none;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight:
+            flex: 1;
+        }
+
+        button.secondary {
+            background: #edf2f8;
+            color: var(--ink);
+        }
+
+        button:disabled {
+            opacity: .55;
+            cursor: wait;
+        }
+
+        #status {
+            min-height: 24px;
+            margin-top: 16px;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        #status.error {
+            color: var(--error);
+        }
+
+        #status.success {
+            color: var(--success);
+        }
+
+        .privacy {
+            border-top: 1px solid var(--line);
+            margin-top: 24px;
+            padding-top: 15px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .actions {
+                flex-direction: column;
+            }
+
+            .actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main>
+
+    <div class="eyebrow">
+        Coleta de dados
+    </div>
+
+    <h1>Registrar localização</h1>
+
+    <p class="intro">
+        Informe o local e obtenha as coordenadas geográficas
+        do dispositivo. Confira os dados antes de enviar.
+    </p>
+
+    <form id="locationForm">
+
+        <label for="local">Local</label>
+
+        <input
+            id="local"
+            name="local"
+            type="text"
+            placeholder="Ex.: Unidade, endereço ou referência"
+            required
+            autocomplete="street-address"
+        >
+
+        <label for="latitude">Latitude</label>
+
+        <input
+            id="latitude"
+            name="latitude"
+            type="text"
+            placeholder="Clique em Obter localização"
+            required
+            readonly
+        >
+
+        <label for="longitude">Longitude</label>
+
+        <input
+            id="longitude"
+            name="longitude"
+            type="text"
+            placeholder="Clique em Obter localização"
+            required
+            readonly
+        >
+
+        <div class="actions">
+
+            <button
+                class="secondary"
+                type="button"
+                id="locateBtn"
+            >
+                ◎ Obter localização
+            </button>
+
+            <button
+                class="primary"
+                type="submit"
+                id="submitBtn"
+            >
+                Enviar registro
+            </button>
+
+        </div>
+
+        <p id="status" role="status" aria-live="polite"></p>
+
+    </form>
+
+    <div class="privacy">
+        A localização só é acessada após sua autorização
+        pelo navegador. Para utilizar a geolocalização,
+        abra esta página em HTTPS.
+    </div>
+
+</main>
+
+<script>
+
+    // CONFIGURAÇÃO DO GOOGLE FORMS
+
+    const FORM_ACTION =
+        "https://docs.google.com/forms/d/e/1FAIpQLSfWKfEvRVHTLb5LPaOQHnMMWweV5x4bybFul2WhPLFLZVKugg/formResponse";
+
+    const ENTRY = {
+        local: "entry.1374212482",
+        latitude: "entry.1807289219",
+        longitude: "entry.1352306536"
+    };
+
+
+    // ELEMENTOS DA PÁGINA
+
+    const form = document.getElementById("locationForm");
+
+    const statusEl = document.getElementById("status");
+
+    const locateBtn = document.getElementById("locateBtn");
+
+    const submitBtn = document.getElementById("submitBtn");
+
+
+    // MENSAGENS DE STATUS
+
+    function setStatus(message, type = "") {
+
+        statusEl.textContent = message;
+
+        statusEl.className = type;
+
+    }
+
+
+    // OBTER LOCALIZAÇÃO DO DISPOSITIVO
+
+    locateBtn.addEventListener("click", () => {
+
+        if (!("geolocation" in navigator)) {
+
+            setStatus(
+                "Este navegador não oferece suporte à geolocalização.",
+                "error"
+            );
+
+            return;
+
+        }
+
+        locateBtn.disabled = true;
+
+        setStatus("Solicitando sua localização...");
+
+        navigator.geolocation.getCurrentPosition(
+
+            ({ coords }) => {
+
+                document.getElementById("latitude").value =
+                    coords.latitude.toFixed(7);
+
+                document.getElementById("longitude").value =
+                    coords.longitude.toFixed(7);
+
+                locateBtn.disabled = false;
+
+                setStatus(
+                    "Localização obtida! Confira os dados e envie o registro.",
+                    "success"
+                );
+
+            },
+
+            (error) => {
+
+                locateBtn.disabled = false;
+
+                const messages = {
+
+                    1: "Permissão de localização negada. Autorize o acesso no navegador.",
+
+                    2: "Não foi possível determinar sua localização. Tente novamente.",
+
+                    3: "A solicitação demorou demais. Tente novamente."
+
+                };
+
+                setStatus(
+                    messages[error.code] || "Erro ao obter localização.",
+                    "error"
+                );
+
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0
+            }
+
+        );
+
+    });
+
+
+    // ENVIAR DADOS PARA O GOOGLE FORMS
+
+    form.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        submitBtn.disabled = true;
+
+        setStatus("Enviando registro...");
+
+        const data = new FormData();
+
+        data.append(
+            ENTRY.local,
+            document.getElementById("local").value.trim()
+        );
+
+        data.append(
+            ENTRY.latitude,
+            document.getElementById("latitude").value.trim()
+        );
+
+        data.append(
+            ENTRY.longitude,
+            document.getElementById("longitude").value.trim()
+        );
+
+        try {
+
+            await fetch(FORM_ACTION, {
+
+                method: "POST",
+
+                mode: "no-cors",
+
+                body: data
+
+            });
+
+            setStatus(
+                "Solicitação de envio realizada! O Google Forms não permite confirmar a gravação diretamente nesta página.",
+                "success"
+            );
+
+            form.reset();
+
+        } catch (error) {
+
+            setStatus(
+                "Não foi possível enviar. Verifique sua conexão e tente novamente.",
+                "error"
+            );
+
+        } finally {
+
+            submitBtn.disabled = false;
+
+        }
+
+    });
+
+</script>
+
+</body>
+</html>
